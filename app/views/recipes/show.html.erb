@@ -9,7 +9,13 @@
       <dd><%= @recipe.dish %></dd>
 
       <dt>User</dt>
-      <dd><%= @recipe.user_id %></dd>
+      <dd>
+        <% if @recipe.user.present? %>
+          <a href="/users/<%= @recipe.user_id %>">
+            <%= @recipe.user.email %>
+          </a>
+        <% end %>
+      </dd>
 
       <dt>Ingredients</dt>
       <dd><%= @recipe.ingredients %></dd>
