@@ -12,6 +12,10 @@ class Recipe < ApplicationRecord
 
   # Indirect associations
 
+  has_many   :commenters,
+             :through => :comments,
+             :source => :user
+
   has_many   :users,
              :through => :likes,
              :source => :user

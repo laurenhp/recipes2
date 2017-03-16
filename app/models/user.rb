@@ -22,6 +22,10 @@ class User < ApplicationRecord
 
   # Indirect associations
 
+  has_many   :commented_recipes,
+             :through => :comments,
+             :source => :recipe
+
   has_many   :liked_recipes,
              :through => :likes,
              :source => :recipe
