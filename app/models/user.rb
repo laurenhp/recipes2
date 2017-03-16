@@ -22,6 +22,10 @@ class User < ApplicationRecord
 
   # Indirect associations
 
+  has_many   :liked_recipes,
+             :through => :likes,
+             :source => :recipe
+
   has_many   :followers,
              :through => :friend_requests_received,
              :source => :sender
