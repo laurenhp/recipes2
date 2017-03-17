@@ -2,13 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Recipes2</title>
+  <title>Recipes</title>
 
 
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Quattrocento" rel="stylesheet">
 
   <style>
+  h3 {
+    font-family: 'Oswald', sans-serif;
+    color: DodgerBlue;
+    font-size: 20px;
+  }
     /* Only necessary if you are using navbar-fixed-top */
     body {
       padding-top: 60px;
@@ -35,43 +42,40 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a href="/" class="navbar-brand">Recipes2</a>
+        <a href="/" class="navbar-brand"><font color="DodgerBlue" face="Oswald">RecipeBox</a></font>
       </div>
 
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
-          <li><a href="/friend_requests">Friend Requests</a></li>
-          <li><a href="/comments">Comments</a></li>
-          <li><a href="/likes">Likes</a></li>
-          <li><a href="/recipes">Recipes</a></li>
-          <li><a href="/users">Users</a></li>
-          <li><a href="/rails/info">Sitemap</a></li>
+          <li><a href="/recipes"><i class="fa fa-book" aria-hidden="true"></i> All Recipes</a></li>
+          <li><a href="/likes"><i class="fa fa-heart" aria-hidden="true"></i> Saved Recipes</a></li>
+          <li><a href="/users"><i class="fa fa-users" aria-hidden="true"></i> Users</a></li>
         </ul>
 
         <ul class="nav navbar-nav navbar-right">
           <% if current_user.present? %>
             <li>
               <a href="/users/edit">
-                <%= current_user.email %>
+                <font color="grey"><i class="fa fa-fw fa-edit"></i> <%= current_user.username %></font>
               </a>
             </li>
 
             <li>
               <a href="/users/sign_out" data-method="delete" rel="nofollow">
-                Sign Out
+                <font color="grey"><i class="fa fa-fw fa-sign-out"></i> Sign Out</font>
               </a>
             </li>
           <% else %>
             <li>
               <a href="/users/sign_up">
-                Sign Up
+                <font color="grey">Sign Up</font>
               </a>
             </li>
 
             <li>
               <a href="/users/sign_in">
-                Sign In
+                <font color="grey">Sign In</font>
               </a>
             </li>
           <% end %>

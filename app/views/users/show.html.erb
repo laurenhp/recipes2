@@ -1,318 +1,69 @@
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Quattrocento" rel="stylesheet">
+</head>
+<style>
+h3 {
+  font-family: 'Oswald', sans-serif;
+  color: DodgerBlue;
+  font-size: 20px;
+}
+body {
+  font-family: 'Quattrocento', serif;
+}
+
+</style>
 <div class="page-header">
-  <h3>User #<%= @user.id %></h3>
+  <h3><%= @user.username %></h3>
 </div>
 
-<div class="row">
-  <div class="col-md-12 mb-2">
-    <dl class="dl-horizontal">
-      <dt>Email</dt>
-      <dd><%= @user.email %></dd>
+<% @user.recipes.each do |recipe| %>
+  <div class="col-md-8 col-md-offset-2">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3>
+          <%= link_to recipe.dish, "/recipes/#{recipe.id}" %>
+            <small>
+              <%= time_ago_in_words(recipe.created_at) %> ago
+            </small>
+        </h3>
+      </div>
+      <div class="panel-body">
+        Ingredients: <%=recipe.ingredients %>
+      </div>
+      <!-- List group -->
+      <ul class="list-group">
+        <li class="list-group-item">Instructions: <%=recipe.instructions %></li>
+      </ul>
 
-      <dt>Password</dt>
-      <dd><%= @user.password %></dd>
+      <div class="panel-footer">
+        <% if current_user == recipe.user %>
+          <div class="btn-group" role="group" aria-label="...">
+            <a href="/recipes/<%= recipe.id %>/edit"> <button type"button" class="btn btn-default">Edit</button></a>
+            <a href="/delete_recipe/<%= recipe.id %>"><button type="button" class="btn btn-default" rel="nofollow">Delete</button></a>
+          </div>
+          <%else %>
+            <% like = Like.find_by(:recipe_id => recipe.id, :user_id => current_user.id) %>
+            <% if like.present? %>
+              <a href="/delete_like/<%= like.id %>" class="btn btn-link">
+                <i class="fa fa-heart"></i> Saved Recipe
+              </a>
+            <%else %>
+              <form action="/create_like" method="post">
+              <!-- Hidden input for authenticity token to protect from forgery -->
+              <input name="authenticity_token" type="hidden" value="<%= form_authenticity_token %>">
 
-      <dt>Username</dt>
-      <dd><%= @user.username %></dd>
+              <input type="hidden" name="recipe_id" value="<%= recipe.id %>">
 
-    </dl>
+              <input type="hidden" name="user_id" value="<%= current_user.id %>">
 
-    <div class="btn-group btn-group-justified">
-      <a href="/users" class="btn btn-primary">
-        Back
-      </a>
+              <button class="btn btn-link">
+                <i class="fa fa-heart-o"></i> Save Recipe?
+              </button>
+            <%end %>
+        <% end %>
+      </div>
+
     </div>
   </div>
-</div>
-
-<!-- A User has many recipes -->
-
-<div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Recipes
-      </li>
-
-      <% @user.recipes.each do |recipe| %>
-        <li class="list-group-item">
-          <a href="/recipes/<%= recipe.id %>">
-            <%= recipe.dish %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/recipes/<%= recipe.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <%if current_user == recipe.user %>
-              <a href="/recipes/<%= recipe.id %>/edit" class="btn btn-warning">
-                <i class="fa fa-edit"></i>
-              </a>
-              <a href="/delete_recipe/<%= recipe.id %>" class="btn btn-danger" rel="nofollow">
-                <i class="fa fa-trash-o"></i>
-              </a>
-            <% end %>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</div>
-
-<!-- A User has many likes -->
-
-<div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Likes
-      </li>
-
-      <% @user.likes.each do |like| %>
-        <li class="list-group-item">
-          <a href="/likes/<%= like.id %>">
-            <%= like.user_id %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/likes/<%= like.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <%if current_user == like.user %>
-              <a href="/likes/<%= like.id %>/edit" class="btn btn-warning">
-                <i class="fa fa-edit"></i>
-              </a>
-              <a href="/delete_like/<%= like.id %>" class="btn btn-danger" rel="nofollow">
-                <i class="fa fa-trash-o"></i>
-              </a>
-            <% end %>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</div>
-
-<!-- A User has many comments -->
-
-<div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Comments
-      </li>
-
-      <% @user.comments.each do |comment| %>
-        <li class="list-group-item">
-          <a href="/comments/<%= comment.id %>">
-            <%= comment.user_id %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/comments/<%= comment.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <%if current_user == comment.user %>
-              <a href="/comments/<%= comment.id %>/edit" class="btn btn-warning">
-                <i class="fa fa-edit"></i>
-              </a>
-              <a href="/delete_comment/<%= comment.id %>" class="btn btn-danger" rel="nofollow">
-                <i class="fa fa-trash-o"></i>
-              </a>
-            <% end %>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</div>
-
-<!-- A User has many friend_requests_sent -->
-
-<div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Friend Requests Sent
-      </li>
-
-      <% @user.friend_requests_sent.each do |friend_request| %>
-        <li class="list-group-item">
-          <a href="/friend_requests/<%= friend_request.id %>">
-            <%= friend_request.sender_id %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/friend_requests/<%= friend_request.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <%if current_user == friend_request.recipient %>
-              <a href="/friend_requests/<%= friend_request.id %>/edit" class="btn btn-warning">
-                <i class="fa fa-edit"></i>
-              </a>
-              <a href="/delete_friend_request/<%= friend_request.id %>" class="btn btn-danger" rel="nofollow">
-                <i class="fa fa-trash-o"></i>
-              </a>
-            <% end %>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</div>
-
-<!-- A User has many friend_requests_received -->
-
-<div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Friend Requests Received
-      </li>
-
-      <% @user.friend_requests_received.each do |friend_request| %>
-        <li class="list-group-item">
-          <a href="/friend_requests/<%= friend_request.id %>">
-            <%= friend_request.sender_id %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/friend_requests/<%= friend_request.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <%if current_user == friend_request.recipient %>
-              <a href="/friend_requests/<%= friend_request.id %>/edit" class="btn btn-warning">
-                <i class="fa fa-edit"></i>
-              </a>
-              <a href="/delete_friend_request/<%= friend_request.id %>" class="btn btn-danger" rel="nofollow">
-                <i class="fa fa-trash-o"></i>
-              </a>
-            <% end %>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</div>
-
-<!-- A User has many leaders -->
-
-<div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Leaders
-      </li>
-
-      <% @user.leaders.each do |user| %>
-        <li class="list-group-item">
-          <a href="/users/<%= user.id %>">
-            <%= user.email %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/users/<%= user.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <a href="/users/<%= user.id %>/edit" class="btn btn-warning">
-              <i class="fa fa-edit"></i>
-            </a>
-            <a href="/delete_user/<%= user.id %>" class="btn btn-danger" rel="nofollow">
-              <i class="fa fa-trash-o"></i>
-            </a>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</div>
-
-<!-- A User has many followers -->
-
-<div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Followers
-      </li>
-
-      <% @user.followers.each do |user| %>
-        <li class="list-group-item">
-          <a href="/users/<%= user.id %>">
-            <%= user.email %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/users/<%= user.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <a href="/users/<%= user.id %>/edit" class="btn btn-warning">
-              <i class="fa fa-edit"></i>
-            </a>
-            <a href="/delete_user/<%= user.id %>" class="btn btn-danger" rel="nofollow">
-              <i class="fa fa-trash-o"></i>
-            </a>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</div>
-
-<!-- A User has many liked_recipes -->
-
-<div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Liked Recipes
-      </li>
-
-      <% @user.liked_recipes.each do |recipe| %>
-        <li class="list-group-item">
-          <a href="/recipes/<%= recipe.id %>">
-            <%= recipe.dish %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/recipes/<%= recipe.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <%if current_user == recipe.user %>
-              <a href="/recipes/<%= recipe.id %>/edit" class="btn btn-warning">
-                <i class="fa fa-edit"></i>
-              </a>
-              <a href="/delete_recipe/<%= recipe.id %>" class="btn btn-danger" rel="nofollow">
-                <i class="fa fa-trash-o"></i>
-              </a>
-            <% end %>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</div>
-
-<!-- A User has many commented_recipes -->
-
-<div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Commented Recipes
-      </li>
-
-      <% @user.commented_recipes.each do |recipe| %>
-        <li class="list-group-item">
-          <a href="/recipes/<%= recipe.id %>">
-            <%= recipe.dish %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/recipes/<%= recipe.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <%if current_user == recipe.user %>
-              <a href="/recipes/<%= recipe.id %>/edit" class="btn btn-warning">
-                <i class="fa fa-edit"></i>
-              </a>
-              <a href="/delete_recipe/<%= recipe.id %>" class="btn btn-danger" rel="nofollow">
-                <i class="fa fa-trash-o"></i>
-              </a>
-            <% end %>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</div>
+<%end %>

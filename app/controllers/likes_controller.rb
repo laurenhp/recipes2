@@ -1,7 +1,7 @@
 class LikesController < ApplicationController
   def index
     @q = Like.ransack(params[:q])
-    @likes = @q.result(:distinct => true).includes(:user, :recipe).page(params[:page]).per(10)
+    @likes = current_user.likes
 
     render("likes/index.html.erb")
   end

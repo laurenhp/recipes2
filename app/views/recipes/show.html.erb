@@ -1,224 +1,114 @@
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Quattrocento" rel="stylesheet">
+</head>
+<style>
+h3 {
+  font-family: 'Oswald', sans-serif;
+  color: DodgerBlue;
+  font-size: 20px;
+}
+body {
+  font-family: 'Quattrocento', serif;
+}
+
+</style>
+
 <div class="page-header">
-  <h3>Recipe #<%= @recipe.id %></h3>
+  <h3>
+    <%= @recipe.dish %>
+  </h3>
+      <%= link_to @recipe.user.username, "/users/#{@recipe.user.id}" %>, <%= time_ago_in_words(@recipe.created_at) %> ago
 </div>
 
-<div class="row">
-  <div class="col-md-12 mb-2">
-    <dl class="dl-horizontal">
-      <dt>Dish</dt>
-      <dd><%= @recipe.dish %></dd>
 
-      <dt>User</dt>
-      <dd>
-        <% if @recipe.user.present? %>
-          <a href="/users/<%= @recipe.user_id %>">
-            <%= @recipe.user.email %>
-          </a>
-        <% end %>
-      </dd>
+<div class="panel panel-default">
 
-      <dt>Ingredients</dt>
-      <dd><%= @recipe.ingredients %></dd>
-
-      <dt>Instructions</dt>
-      <dd><%= @recipe.instructions %></dd>
-
-      <dt>Recipe url</dt>
-      <dd><%= @recipe.recipe_url %></dd>
-
-    </dl>
-
-    <div class="btn-group btn-group-justified">
-      <a href="/recipes" class="btn btn-primary">
-        Back
-      </a>
-      <% if current_user == @recipe.user %>
-        <a href="/recipes/<%= @recipe.id %>/edit" class="btn btn-warning">
-          Edit
-        </a>
-        <a href="/delete_recipe/<%= @recipe.id %>" class="btn btn-danger" rel="nofollow">
-          Delete
-        </a>
-      <% end %>
+  <% if current_user == @recipe.user %>
+    <div class="panel-heading">
+      <div class="btn-group" role="group" aria-label="...">
+        <a href="/recipes/<%= @recipe.id %>/edit"> <button type"button" class="btn btn-default">Edit</button></a>
+        <a href="/delete_recipe/<%= @recipe.id %>"><button type="button" class="btn btn-default" rel="nofollow">Delete</button></a>
+      </div>
     </div>
-  </div>
-</div>
-
-<!-- A Recipe has many likes -->
-
-<div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Likes
-      </li>
-
-      <% @recipe.likes.each do |like| %>
-        <li class="list-group-item">
-          <a href="/likes/<%= like.id %>">
-            <%= like.user_id %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/likes/<%= like.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <a href="/likes/<%= like.id %>/edit" class="btn btn-warning">
-              <i class="fa fa-edit"></i>
-            </a>
-            <a href="/delete_like/<%= like.id %>" class="btn btn-danger" rel="nofollow">
-              <i class="fa fa-trash-o"></i>
-            </a>
-          </div>
-        </li>
-      <% end %>
-
-      <li class="list-group-item">
+    <%else %>
+    <div class="panel-heading">
+      <% like = Like.find_by(:recipe_id => @recipe.id, :user_id => current_user.id) %>
+      <% if like.present? %>
+        <a href="/delete_like/<%= like.id %>" class="btn btn-link">
+          <i class="fa fa-heart"></i> Saved Recipe
+        </a>
+      <%else %>
         <form action="/create_like" method="post">
-      <!-- Hidden input for authenticity token to protect from forgery -->
-      <input name="authenticity_token" type="hidden" value="<%= form_authenticity_token %>">
+        <!-- Hidden input for authenticity token to protect from forgery -->
+        <input name="authenticity_token" type="hidden" value="<%= form_authenticity_token %>">
 
-      <!-- Label and input for user_id -->
-      <div class="form-group">
-        <label for="user_id" class="control-label">
-          User
-        </label>
+        <input type="hidden" name="recipe_id" value="<%= @recipe.id %>">
 
-        <%= select_tag(:user_id, options_from_collection_for_select(User.all, :id, :email), :class => "form-control") %>
-      </div>
+        <input type="hidden" name="user_id" value="<%= current_user.id %>">
 
-      <!-- Label and input for recipe_id -->
-      <input type="hidden" name="recipe_id" value="<%= @recipe.id %>">
-
-      <button class="btn btn-block btn-success">
-        Create Like
-      </button>
-    </form>
-      </li>
-    </ul>
-  </div>
+        <button class="btn btn-link">
+          <i class="fa fa-heart-o"></i> Save Recipe
+        </button>
+      </form>
+      <%end %>
+    </div>
+  <% end %>
+  <!-- List group -->
+  <ul class="list-group">
+    <li class="list-group-item">Ingredients: <%=@recipe.ingredients %></li>
+    <li class="list-group-item">Instructions: <%=@recipe.instructions %></li>
+  </ul>
 </div>
 
-<!-- A Recipe has many comments -->
-
-<div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Comments
-      </li>
-
-      <% @recipe.comments.each do |comment| %>
-        <li class="list-group-item">
-          <a href="/comments/<%= comment.id %>">
-            <%= comment.user_id %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/comments/<%= comment.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <a href="/comments/<%= comment.id %>/edit" class="btn btn-warning">
-              <i class="fa fa-edit"></i>
-            </a>
-            <a href="/delete_comment/<%= comment.id %>" class="btn btn-danger" rel="nofollow">
-              <i class="fa fa-trash-o"></i>
-            </a>
-          </div>
-        </li>
-      <% end %>
-
+<!-- Comments -->
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">Comments</div>
+  <!-- List group -->
+  <ul class="list-group">
+    <%@recipe.comments.each do |comment| %>
       <li class="list-group-item">
-        <form action="/create_comment" method="post">
-      <!-- Hidden input for authenticity token to protect from forgery -->
-      <input name="authenticity_token" type="hidden" value="<%= form_authenticity_token %>">
-
-      <!-- Label and input for user_id -->
-      <div class="form-group">
-        <label for="user_id" class="control-label">
-          User
-        </label>
-
-        <%= select_tag(:user_id, options_from_collection_for_select(User.all, :id, :email), :class => "form-control") %>
-      </div>
-
-      <!-- Label and input for recipe_id -->
-      <input type="hidden" name="recipe_id" value="<%= @recipe.id %>">
-
-      <!-- Label and input for comment -->
-      <div class="form-group">
-        <label for="comment" class="control-label">
-          Comment
-        </label>
-
-        <textarea id="comment" name="comment" placeholder="Comment" class="form-control" rows="3"></textarea>
-      </div>
-
-      <button class="btn btn-block btn-success">
-        Create Comment
-      </button>
-    </form>
+        <%= link_to comment.user.username, "/users/#{comment.user.id}" %> <%=comment.comment%>
+          <% if comment.user == current_user %>
+            <a href="/delete_comment/<%= comment.id %>">
+              <i class="fa fa-trash"></i>
+            </a>
+          <% end %>
       </li>
-    </ul>
-  </div>
+    <%end %>
+    <!--add comment-->
+      <form action="/create_comment" method="post">
+        <!-- Hidden input for authenticity token to protect from forgery -->
+        <input name="authenticity_token" type="hidden" value="<%= form_authenticity_token %>">
+
+        <input type="hidden" name="recipe_id" value="<%= @recipe.id %>">
+
+        <input type="hidden" name="user_id" value="<%= current_user.id %>">
+
+        <!-- Label and input for body -->
+        <div class="form-group">
+          <label for="comment" class="sr-only">
+            Comment
+          </label>
+
+          <div class="input-group">
+            <input type="text" id="comment" name="comment" class="form-control" placeholder="Add a comment..." required>
+
+            <span class="input-group-btn">
+              <button class="btn btn-default">
+                <i class="fa fa-commenting-o"></i>
+              </button>
+            </span>
+          </div>
+        </div>
+      </form>
+  </ul>
 </div>
 
-<!-- A Recipe has many users -->
-
+<!--back button-->
 <div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Users
-      </li>
-
-      <% @recipe.users.each do |user| %>
-        <li class="list-group-item">
-          <a href="/users/<%= user.id %>">
-            <%= user.email %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/users/<%= user.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <a href="/users/<%= user.id %>/edit" class="btn btn-warning">
-              <i class="fa fa-edit"></i>
-            </a>
-            <a href="/delete_user/<%= user.id %>" class="btn btn-danger" rel="nofollow">
-              <i class="fa fa-trash-o"></i>
-            </a>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</div>
-
-<!-- A Recipe has many commenters -->
-
-<div class="row">
-  <div class="col-md-12">
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-info">
-        Commenters
-      </li>
-
-      <% @recipe.commenters.each do |user| %>
-        <li class="list-group-item">
-          <a href="/users/<%= user.id %>">
-            <%= user.email %>
-          </a>
-          <div class="btn-group btn-group-xs pull-right">
-            <a href="/users/<%= user.id %>" class="btn btn-primary">
-              <i class="fa fa-search-plus"></i>
-            </a>
-            <a href="/users/<%= user.id %>/edit" class="btn btn-warning">
-              <i class="fa fa-edit"></i>
-            </a>
-            <a href="/delete_user/<%= user.id %>" class="btn btn-danger" rel="nofollow">
-              <i class="fa fa-trash-o"></i>
-            </a>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
+  <a href="/recipes" class="btn btn-default btn-block">
+    <i class="fa fa-arrow-left" aria-hidden="true"></i> Go Back
+  </a>
 </div>
